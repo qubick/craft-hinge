@@ -1,6 +1,6 @@
 <craft>
     <craft name="graph" src="./index.xml"/>
-    <row> 
+    <row spacing="3"> 
     	<graph slope="2" intercept="3"></graph>
     	<graph slope="-3" intercept="4"></graph>
     	<graph slope="1" intercept="0"></graph>
