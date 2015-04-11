@@ -1,16 +1,38 @@
 <craft>
-    <parameter name="slope" type="int" default="2"/>
+    <parameter name="slope" type="int" default="0"/>
     <parameter name="intercept" type="int" default="1"/>
+    <parameter name="p1" type="string" default="none"/>
+    <parameter name="p2" type="string" default="none"/>
     <script type="text/openjscad">
 
         function main(params){
-            var slope = params.slope
-                ,y_inter = params.intercept
+
+            if(params.slope != 0){
+                var slope = params.slope
+                    ,y_inter = params.intercept
+            } else if(params.p1 != 'none'){
+                var x1 = params.p1.split(',')
+                    ,x2 = params.p2.split(',')
+                var p1 = {
+                        x: x1[0],
+                        y: x1[1]
+                    },
+                    p2 = {
+                        x: x2[0],
+                        y: x2[1]
+                    }
+
+                var slope = (p1.y-p2.y)/(p1.x-p2.x)
+                    ,y_inter = p1.y - slope * p1.x
+            }
+            
+            console.log('slope: ', slope, 'y-intercept: ', y_inter)
+
             var arrow = difference(
                     cylinder({r:0.7, h:0.2, fn:3})
                     ,cylinder({r:0.7, h:0.2, fn:3}).translate([-0.2,0,0])
                 )
-            var x_axis = cube([0.2,10,0.2]).translate([0,-5,0])
+                ,x_axis = cube([0.2,10,0.2]).translate([0,-5,0])
                 ,y_axis = cube([10,0.2,0.2]).translate([-5,0,0])
                 ,coordinate = union(
                     x_axis
@@ -18,15 +40,17 @@
                     ,arrow.translate([4.4,0.1,0])
                     ,arrow.rotateZ(90).translate([0.1,4.4,0])
                 )
+
             var random_x1 = 3.5 //coordinate boundary
                 ,random_x2 = -3.5;
 
             var p1 = {
-                x: random_x1, //random x
-                y: slope*random_x1 + y_inter
-            }, p2 = {
-                x: random_x2, //random x
-                y: slope*random_x2 + y_inter
+                    x: random_x1, //random x
+                    y: slope*random_x1 + y_inter
+                }, 
+                p2 = {
+                    x: random_x2, //random x
+                    y: slope*random_x2 + y_inter
             }
 
             var line = rectangular_extrude([[p1.x, p1.y],[p2.x,p2.y]], // path is an array of 2d coords
