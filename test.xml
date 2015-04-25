@@ -1,8 +1,8 @@
 <craft>
-    <craft name="graph" src="./index.xml"/>
+    <craft name="function" src="./index.xml"/>
     <row spacing="3"> 
-    	<graph slope="2" intercept="3"></graph>
-    	<graph slope="-0.5" intercept="1"></graph>
-    	<graph p1="1,1" p2="-1,0"></graph>
+    	<function type="sin" period="10"></function>
+    	<function type="cos" period="10"></function>
+    	<!--function type="tan" period="2"></function-->
     </row> 
 </craft>
