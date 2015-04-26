@@ -10,7 +10,7 @@
                 point = []; // array
 
             if(params.type === "sin"){
-                for(var i=0; i<period; i+=0.5){
+                for(var i=0; i<=period; i+=0.5){
                     point = [ //point object
                         i,
                         Math.sin(i)
@@ -20,7 +20,7 @@
                 }
 
             } else if(params.type === "cos"){
-                for(var i=0; i<period; i+=0.5){
+                for(var i=0; i<=period; i+=0.5){
                     point = [ //point object
                         i,
                         Math.cos(i)
@@ -31,7 +31,11 @@
 
             } else if(params.type === "tan"){
                 //tanget function is discrete at 90, 270, ...
-                for(var i=0; i<period; i+=0.5){
+                
+                //save prev degree
+                //check prev<90 && curr>90
+                //discrete
+                for(var i=0; i<=period; i+=0.5){
                     point = [ //point object
                         i,
                         Math.tan(i)
@@ -40,31 +44,31 @@
                     pts.push(point);
                 }
             }
-console.log(pts)
+
+            console.log(pts)
             //draw coordinate & axis
             var arrow = difference(
                     cylinder({r:0.7, h:0.2, fn:3})
                     ,cylinder({r:0.7, h:0.2, fn:3})
                         .translate([-0.2,0,0])
                 )
-                ,x_axis = cube([0.2,10,0.2]).translate([0,-5,0])
-                ,y_axis = cube([10,0.2,0.2]).translate([-5,0,0])
+                ,y_axis = cube([0.2,4,0.2]).translate([0,-1,0])
+                ,x_axis = cube([10,0.2,0.2]).translate([-1,0,0])
                 ,coordinate = union(
                     x_axis
                     ,y_axis
-                    ,arrow.translate([4.4,0.1,0])
-                    ,arrow.rotateZ(90).translate([0.1,4.4,0])
+                    ,arrow.translate([8.4,0.1,0]) //x
+                    ,arrow.rotateZ(90).translate([0.1,2.4,0]) //y
                 )
 
-            var curvepath = new CSG.Path2D(pts, false)// extrude along with x, y pairs
+            var curvepath = new CSG.Path2D(pts, false)//extrude along with x, y pairs
             console.log(typeof(curvepath))
 
             return union(
                 coordinate
-                ,rectangular_extrude(pts, {w: 0.5, h: 1, closed: false})
+                ,rectangular_extrude(pts, {w: 0.5, h: 0.5, closed: false})
             )
 
         }
     </script>
 </craft>
-

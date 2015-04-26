@@ -3,6 +3,6 @@
     <row spacing="3"> 
     	<function type="sin" period="360"></function>
     	<function type="cos" period="360"></function>
-    	<function type="tan" period="180"></function>
+    	<function type="tan" period="89"></function>
     </row> 
 </craft>
