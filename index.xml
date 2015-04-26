@@ -5,12 +5,12 @@
 
         function main(params){
 
-            var period = params.period
+            var period = params.period*Math.PI/180
             var pts = [],
                 point = []; // array
 
             if(params.type === "sin"){
-                for(var i=0; i<period; i++){
+                for(var i=0; i<period; i+=0.5){
                     point = [ //point object
                         i,
                         Math.sin(i)
@@ -20,7 +20,7 @@
                 }
 
             } else if(params.type === "cos"){
-                for(var i=0; i<period; i++){
+                for(var i=0; i<period; i+=0.5){
                     point = [ //point object
                         i,
                         Math.cos(i)
@@ -30,11 +30,12 @@
                 }
 
             } else if(params.type === "tan"){
-                for(var i=0; i<period; i+=0.1){
-                    point = { //point object
-                        x: i,
-                        y: Math.tan(i)
-                    }
+                //tanget function is discrete at 90, 270, ...
+                for(var i=0; i<period; i+=0.5){
+                    point = [ //point object
+                        i,
+                        Math.tan(i)
+                    ]
 
                     pts.push(point);
                 }
@@ -56,7 +57,7 @@ console.log(pts)
                 )
 
             var curvepath = new CSG.Path2D(pts, false)// extrude along with x, y pairs
-console.log(typeof(curvepath))
+            console.log(typeof(curvepath))
 
             return union(
                 coordinate
