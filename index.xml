@@ -36,7 +36,7 @@
                 //tanget function is discrete at 90, 270, ...
                 
                 var pArr = []
-                    ,prev = 0
+                    ,sign = 0
                     ,first = true
 
                 point = [ //point object
@@ -46,19 +46,23 @@
                 pts.push(point); //first
 
                 for(var i=0.5; i<=period; i+=0.5){
+                    if(sign*Math.tan(i) < 0){
+                        console.log(sign*Math.tan(i))
+                        pArr.push(pts) //should be pushed one step before
+                    }
+
                     point = [ //point object
                         i,
                         Math.tan(i)
                     ]
                     pts.push(point);
 
-                    console.log(prev, i, Math.PI/2)
+                    console.log(sign)
+                    sign = Math.tan(i) //previous y-value
+                } 
 
-                    if(prev < Math.PI/2 && i > Math.PI/2){
-                        pArr.push(pts)
-                    }
-                    prev = i
-                }             
+                //create tangent graph with separate array..
+                //how??            
                 pArr.forEach(function(p){
 
                     path = new CSG.Path2D(p, false)
@@ -70,8 +74,6 @@
                             ,path
                         )
                     }
-
-console.log("reach to here")
                 })
             }
             console.log(pts)
@@ -100,18 +102,18 @@ console.log("reach to here")
 
             console.log(typeof(curvepath))
 
-            var unit = union(
+            return unit = union(
                 coordinate
                 ,rectangular_extrude(pts, 
                                     {w: 0.5, h: 0.5, closed: false})
             )
-
+/*
             return intersection(
                 unit,
                 cube([12,5,2])
                     .translate([-2.5,-2,0])
             );
-
+*/
         }
     </script>
 </craft>
