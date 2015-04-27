@@ -6,8 +6,9 @@
         function main(params){
 
             var period = params.period*Math.PI/180
-            var pts = [],
-                point = []; // array
+            var pts = []
+                ,point = [] // array
+                ,curvepath;
 
             if(params.type === "sin"){
                 for(var i=0; i<=period; i+=0.5){
@@ -18,6 +19,7 @@
 
                     pts.push(point);
                 }
+                curvepath = new CSG.Path2D(pts, false)//create 2D line path along with x, y pairs
 
             } else if(params.type === "cos"){
                 for(var i=0; i<=period; i+=0.5){
@@ -28,46 +30,87 @@
 
                     pts.push(point);
                 }
+                curvepath = new CSG.Path2D(pts, false)//create 2D line path along with x, y pairs
 
             } else if(params.type === "tan"){
                 //tanget function is discrete at 90, 270, ...
                 
-                //save prev degree
-                //check prev<90 && curr>90
-                //discrete
-                for(var i=0; i<=period; i+=0.5){
+                var pArr = []
+                    ,prev = 0
+                    ,first = true
+
+                point = [ //point object
+                        0,
+                        Math.tan(0)
+                    ]
+                pts.push(point); //first
+
+                for(var i=0.5; i<=period; i+=0.5){
                     point = [ //point object
                         i,
                         Math.tan(i)
                     ]
-
                     pts.push(point);
-                }
-            }
 
+                    console.log(prev, i, Math.PI/2)
+
+                    if(prev < Math.PI/2 && i > Math.PI/2){
+                        pArr.push(pts)
+                    }
+                    prev = i
+                }             
+                pArr.forEach(function(p){
+
+                    path = new CSG.Path2D(p, false)
+                    if(first){
+                        curvepath = path
+                    } else {
+                        curvepath = union( //accumulate all paths
+                            curvepath
+                            ,path
+                        )
+                    }
+
+console.log("reach to here")
+                })
+            }
             console.log(pts)
+
+
             //draw coordinate & axis
             var arrow = difference(
                     cylinder({r:0.7, h:0.2, fn:3})
                     ,cylinder({r:0.7, h:0.2, fn:3})
                         .translate([-0.2,0,0])
                 )
-                ,y_axis = cube([0.2,4,0.2]).translate([0,-1,0])
-                ,x_axis = cube([10,0.2,0.2]).translate([-1,0,0])
+                //the size should depend on the period
+                ,y_axis = cube([0.2,4,0.2])
+                            .translate([0,-1,0])
+                ,x_axis = cube([10,0.2,0.2])
+                            .translate([-1,0,0])
                 ,coordinate = union(
                     x_axis
                     ,y_axis
-                    ,arrow.translate([8.4,0.1,0]) //x
-                    ,arrow.rotateZ(90).translate([0.1,2.4,0]) //y
+                    ,arrow
+                        .translate([8.4,0.1,0]) //x
+                    ,arrow
+                        .rotateZ(90)
+                        .translate([0.1,2.4,0]) //y
                 )
 
-            var curvepath = new CSG.Path2D(pts, false)//extrude along with x, y pairs
             console.log(typeof(curvepath))
 
-            return union(
+            var unit = union(
                 coordinate
-                ,rectangular_extrude(pts, {w: 0.5, h: 0.5, closed: false})
+                ,rectangular_extrude(pts, 
+                                    {w: 0.5, h: 0.5, closed: false})
             )
+
+            return intersection(
+                unit,
+                cube([12,5,2])
+                    .translate([-2.5,-2,0])
+            );
 
         }
     </script>
