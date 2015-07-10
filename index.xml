@@ -1,119 +1,124 @@
 <craft>
-    <parameter name="type" type="string" default="sin"/>
-    <parameter name="period" type="int" default="180"/>
+    <parameter name="side1" type="int" default="3"/>
+    <parameter name="side2" type="int" default="7"/>
+    <parameter name="side3" type="int" default="5"/>
+    <parameter name="width" type="int" default="10"/>
+
     <script type="text/openjscad">
+        function main(params) {
+            
+        var length1, length2, length3, bar1, bar2, bar3;
+        var width = params.width;
 
-        function main(params){
-
-            var period = params.period*Math.PI/180
-            var pts = []
-                ,point = [] // array
-                ,curvepath;
-
-            if(params.type === "sin"){
-                for(var i=0; i<=period; i+=0.5){
-                    point = [ //point object
-                        i,
-                        Math.sin(i)
-                    ]
-
-                    pts.push(point);
-                }
-                curvepath = new CSG.Path2D(pts, false)//create 2D line path along with x, y pairs
-
-            } else if(params.type === "cos"){
-                for(var i=0; i<=period; i+=0.5){
-                    point = [ //point object
-                        i,
-                        Math.cos(i)
-                    ]
-
-                    pts.push(point);
-                }
-                curvepath = new CSG.Path2D(pts, false)//create 2D line path along with x, y pairs
-
-            } else if(params.type === "tan"){
-                //tanget function is discrete at 90, 270, ...
-                
-                var pArr = []
-                    ,sign = 0
-                    ,first = true
-
-                point = [ //point object
-                        0,
-                        Math.tan(0)
-                    ]
-                pts.push(point); //first
-
-                for(var i=0.5; i<=period; i+=0.5){
-                    if(sign*Math.tan(i) < 0){
-                        console.log(sign*Math.tan(i))
-                        pArr.push(pts) //should be pushed one step before
-                    }
-
-                    point = [ //point object
-                        i,
-                        Math.tan(i)
-                    ]
-                    pts.push(point);
-
-                    console.log(sign)
-                    sign = Math.tan(i) //previous y-value
-                } 
-
-                //create tangent graph with separate array..
-                //how??            
-                pArr.forEach(function(p){
-
-                    path = new CSG.Path2D(p, false)
-                    if(first){
-                        curvepath = path
-                    } else {
-                        curvepath = union( //accumulate all paths
-                            curvepath
-                            ,path
-                        )
-                    }
-                })
-            }
-            console.log(pts)
-
-
-            //draw coordinate & axis
-            var arrow = difference(
-                    cylinder({r:0.7, h:0.2, fn:3})
-                    ,cylinder({r:0.7, h:0.2, fn:3})
-                        .translate([-0.2,0,0])
-                )
-                //the size should depend on the period
-                ,y_axis = cube([0.2,4,0.2])
-                            .translate([0,-1,0])
-                ,x_axis = cube([10,0.2,0.2])
-                            .translate([-1,0,0])
-                ,coordinate = union(
-                    x_axis
-                    ,y_axis
-                    ,arrow
-                        .translate([8.4,0.1,0]) //x
-                    ,arrow
-                        .rotateZ(90)
-                        .translate([0.1,2.4,0]) //y
-                )
-
-            console.log(typeof(curvepath))
-
-            return unit = union(
-                coordinate
-                ,rectangular_extrude(pts, 
-                                    {w: 0.5, h: 0.5, closed: false})
-            )
+        var hinge = mathhinge(width*2);
+        hinge = hinge.scale([0.5,0.5,0.5]);
 /*
-            return intersection(
-                unit,
-                cube([12,5,2])
-                    .translate([-2.5,-2,0])
+            if (params.side1 != 'none') { //bottom
+                length1 = params.side1;
+                bar1 = cube({size:[width,length1,1.5]})
+            }
+
+            if (params.side2 != 'none') { 
+                length2 = params.side2;
+                bar2 = cube({size:[width,length2,1.5]})
+            }
+            
+            if (params.side3 != 'none') { 
+                length3 = params.side3;
+                bar3 = cube({size:[width,length2,1.5]})
+            }
+
+            var line = union(
+                bar1
+                ,hinge.translate([0,length1+3,0])
+                            
+                ,bar2.translate([0,length1+6,0])
+                ,hinge.translate([0,length1+length2+9,0])
+                
+                ,bar3.translate([0,length1+length2+12,0])
             );
-*/
+  */          
+            return hinge;
+
+        } // end of main
+        
+        function mathhinge(width){
+
+            var length = width; // Length of the complete hinge
+            var height = 3; // Height (diameter) of the hinge
+            var clearance = 0.7; // Clearance between cones and holes   
+            var gap = 0.6; // Clearance between hinge and sides             
+
+            // Parameters that the user does not get to specify
+            var fn=24*1;
+            var border = 2*1; 
+            var fudge = .01*1;          // to preserve mesh integrity
+            var corner = 0*1;       // space between hinge and corner
+            var hinge_radius = height/2;
+            var cone_height = 1.5*hinge_radius;  
+
+
+            var hinge_module = hinge(hinge_radius, clearance, length, corner, cone_height, gap, fudge)
+                                .translate([-hinge_radius,0,0])
+                                .rotateY(90);
+
+            var bar1 = bar(length, border, height)
+                        .translate([0, hinge_radius+gap, 0]);
+            var bar2 = bar(length, border, height)
+                        .translate([0, -2*border-hinge_radius-gap, 0]);
+
+            return union(hinge_module, bar1, bar2);
+
+        }
+
+        function hinge(hinge_radius, clearance, 
+                        length, corner, cone_height, gap, fudge){
+            var rad = hinge_radius;
+            var clr = clearance;
+            var len = (length-2*corner)/3; 
+            var con = cone_height;
+            
+            // left outside hinge = (cylinder+box)-cone
+            var outside = difference(
+                            union(
+                                cylinder({h:len-clr,r:rad})
+                                    .translate([0,0,corner]),
+                                cube([2*rad,rad+gap,len-clr])
+                                    .translate([-rad,0,corner])
+                                ),
+                                cylinder({h:con,r1:0,r2:rad})
+                                    .translate([0,0,corner+len-con-clr+fudge])
+            )
+            // inside hinge = cylinder+box+cone+cone
+            var inside = union(
+                            cylinder({h:len,r:rad})
+                                .translate([0,0,corner+len]),
+                            cube([2*rad,rad+gap,len])
+                                .translate([-rad,-rad-gap,corner+len]),
+                            cylinder({h:con,r1:0,r2:rad})
+                                .translate([0,0,corner+len-con]),
+                            cylinder({h:con,r1:rad,r2:0})
+                                .translate([0,0,corner+2*len])
+                            );
+            
+            // right outside hinge = (cylinder+box)-cone
+            var right = union(
+                            cylinder({h:len-clr,r:rad})
+                                .translate([0,0,corner+2*len+clr]),
+                            cube([2*rad,rad+gap,len-clr])
+                                .translate([-rad,0,corner+2*len+clr])
+                        );
+                right = difference(
+                            right,
+                            cylinder({h:con,r1:rad,r2:0})
+                                .translate([0,0,corner+2*len+clr-fudge])
+                        );
+            
+            return union(outside, inside, right);
+        }
+
+        function bar(length, border, height){
+            return cube([length,2*border,height]);
         }
     </script>
 </craft>
