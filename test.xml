@@ -1,8 +1,8 @@
 <craft>
-    <craft name="function" src="./index.xml"/>
+    <craft name="hinge" src="./index.xml"/>
     <row spacing="3"> 
     	<!--function type="sin" period="360"></function>
     	<function type="cos" period="360"></function-->
-    	<function type="tan" period="270"></function>
+    	<hinge length="3"></function>
     </row> 
 </craft>
