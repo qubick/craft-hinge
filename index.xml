@@ -1,8 +1,5 @@
 <craft>
-    <parameter name="side1" type="int" default="3"/>
-    <parameter name="side2" type="int" default="7"/>
-    <parameter name="side3" type="int" default="5"/>
-    <parameter name="width" type="int" default="10"/>
+    <parameter name="width" type="int" default="6"/>
 
     <script type="text/openjscad">
         function main(params) {
@@ -12,32 +9,7 @@
 
         var hinge = mathhinge(width*2);
         hinge = hinge.scale([0.5,0.5,0.5]);
-/*
-            if (params.side1 != 'none') { //bottom
-                length1 = params.side1;
-                bar1 = cube({size:[width,length1,1.5]})
-            }
-
-            if (params.side2 != 'none') { 
-                length2 = params.side2;
-                bar2 = cube({size:[width,length2,1.5]})
-            }
-            
-            if (params.side3 != 'none') { 
-                length3 = params.side3;
-                bar3 = cube({size:[width,length2,1.5]})
-            }
-
-            var line = union(
-                bar1
-                ,hinge.translate([0,length1+3,0])
-                            
-                ,bar2.translate([0,length1+6,0])
-                ,hinge.translate([0,length1+length2+9,0])
-                
-                ,bar3.translate([0,length1+length2+12,0])
-            );
-  */          
+        
             return hinge;
 
         } // end of main
@@ -46,16 +18,16 @@
 
             var length = width; // Length of the complete hinge
             var height = 3; // Height (diameter) of the hinge
-            var clearance = 0.7; // Clearance between cones and holes   
-            var gap = 0.6; // Clearance between hinge and sides             
+            var clearance = 0.4; // Clearance between cones and holes   
+            var gap = 0.5; // Clearance between hinge and sides             
 
             // Parameters that the user does not get to specify
             var fn=24*1;
             var border = 2*1; 
             var fudge = .01*1;          // to preserve mesh integrity
-            var corner = 0*1;       // space between hinge and corner
+            var corner = 1*1;       // space between hinge and corner
             var hinge_radius = height/2;
-            var cone_height = 1.5*hinge_radius;  
+            var cone_height = 1.7*hinge_radius;  //how to reflect that the cone height needs to be shorter than width?
 
 
             var hinge_module = hinge(hinge_radius, clearance, length, corner, cone_height, gap, fudge)
